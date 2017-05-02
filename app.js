@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var expressSession = require('express-session');
+var MongoStore = require('connect-mongo')(expressSession);
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -24,7 +25,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(expressSession({secret: 'test', saveUninitialized: false, resave: false}));
+app.use(expressSession({
+		secret: 'test', // TODO: Store secret outside of source code.
+		store: new MongoStore({
+        	host: '127.0.0.1',
+        	port: '27017',
+        	url: 'mongodb://localhost:27017/storkapp'
+    		}),
+		saveUninitialized: false,
+		resave: false}));
 
 app.use('/', index);
 app.use('/users', users);
