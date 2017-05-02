@@ -8,6 +8,25 @@ var expressValidator = require('express-validator');
 var expressSession = require('express-session');
 var MongoStore = require('connect-mongo')(expressSession);
 
+// Passport-related initialization.
+var User = require('./models/user');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -34,6 +53,8 @@ app.use(expressSession({
     		}),
 		saveUninitialized: false,
 		resave: false}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', index);
 app.use('/users', users);
