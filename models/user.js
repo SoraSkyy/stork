@@ -9,7 +9,7 @@ var UserSchema = Schema(
     password: {type: String, required: true, max: 100},
     date_of_birth: {type: Date},
     profile_id: {type: String, max:100},
-    profile_name: {type: String, required: true, max: 100}
+    profile_name: {type: String, required: false, max: 100}
   }
 );
 

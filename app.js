@@ -7,12 +7,18 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var expressSession = require('express-session');
 var MongoStore = require('connect-mongo')(expressSession);
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/storkapp');
 
 // Passport-related initialization.
 var User = require('./models/user');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-passport.use(new LocalStrategy(
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password',
+  },
   function(username, password, done) {
     User.findOne({ username: username }, function (err, user) {
       if (err) { return done(err); }
@@ -29,6 +35,8 @@ passport.use(new LocalStrategy(
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var login = require('./routes/login');
+var signup = require('./routes/signup');
 
 var app = express();
 
@@ -58,6 +66,8 @@ app.use(passport.session());
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/login', login);
+app.use('/signup', signup);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
