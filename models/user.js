@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt-nodejs');
 
 const Schema = mongoose.Schema;
 
@@ -15,6 +16,16 @@ const UserSchema = Schema(
 
 // Virtual for author's URL to obtain the particular instance
 UserSchema.virtual('url').get(() => `/profile/ ${this.profile_id}`);
+
+// Called in user creation to generate a hash for the password.
+UserSchema.methods.generateHash = (password) => {
+  return bcrypt.hash(password, bcrypt.genSaltSync(8), null);
+};
+
+// Called when verifying if the password is the same as the hashed password.
+UserSchema.methods.validPassword = (password) => {
+  return bcrypt.compare(password, this.password);
+};
 
 // Export model
 module.exports = mongoose.model('User', UserSchema);
