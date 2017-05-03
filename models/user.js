@@ -5,11 +5,11 @@ const Schema = mongoose.Schema;
 
 // TODO: Decide the structure of the User model
 const UserSchema = Schema({
-    email: { type: String, required: true, max: 100 },
-    password: { type: String, required: true, max: 100 },
-    date_of_birth: { type: Date },
-    profile_id: { type: String, max: 100 },
-    profile_name: { type: String, required: true, max: 100 },
+  email: { type: String, required: true, max: 100 },
+  password: { type: String, required: true, max: 100 },
+  date_of_birth: { type: Date },
+  profile_id: { type: String, max: 100 },
+  profile_name: { type: String, required: true, max: 100 },
   }
 );
 
@@ -18,8 +18,22 @@ const UserSchema = Schema({
 UserSchema.virtual('url').get(() => `/profile/ ${this.profile_name}`);
 
 // Called in user creation to generate a hash for the password.
-UserSchema.methods.generateHash = (password) => {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+UserSchema.methods.generateHash = (password, callback) => {
+  bcrypt.genSalt(8, (err, salt) => {
+    if (err) {
+      console.log('Error occured while generating salt.');
+      console.log(err);
+      throw err;
+    }
+    bcrypt.hash(password, salt, null, (hashError, hash) => {
+      if (hashError) {
+        console.log('Error occured while generating hash.');
+        console.log(hashError);
+        throw hashError;
+      }
+      callback(hash);
+    });
+  });
 };
 
 // Called when verifying if the password is the same as the hashed password.

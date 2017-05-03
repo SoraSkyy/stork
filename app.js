@@ -34,7 +34,7 @@ passport.use('local-signup', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true }, (req, email, password, done) => {
     /* 
-      If the email or profile_name already exists.
+      Checks if the email or profile_name already exists.
       As long as either one of them gives a match, then we reject the application and flash 
       error message.
     */
@@ -60,15 +60,17 @@ passport.use('local-signup', new LocalStrategy({
         newUser = new User();
         newUser.profile_name = req.body.profile_name;
         newUser.email = email;
-        newUser.password = newUser.generateHash(password);
-        newUser.save((err) => {
-          if (err) {
-            console.log('There was an error in creating the user');
-            console.log(err);
-            throw err;
-          } else {
-            done(null, newUser);
-          }
+        newUser.generateHash(password, (hash) => {
+          newUser.password = hash;
+          newUser.save((err) => {
+            if (err) {
+              console.log('There was an error in creating the user');
+              console.log(err);
+              throw err;
+            } else {
+              done(null, newUser);
+            }
+          });
         });
       }
     });
