@@ -8,19 +8,20 @@ router.get('/', function(req, res, next) {
 	if (req.user) {
 		res.send('You are already logged in!');
 	} else {
-		res.render('signup');
+		res.render('signup', { message: req.flash('signupMessage') });
 	}
 });
 
-/*
-router.post('/', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/'
+
+router.post('/', passport.authenticate('local-signup', {
+  successRedirect: '/login',
+  failureRedirect: '/signup',
+  failureFlash: true,
   })
 );
-*/
 
 
+/*
 router.post('/', function(req, res, next) {
 	var email = req.body.email;
 	var password = req.body.password;
@@ -39,7 +40,8 @@ router.post('/', function(req, res, next) {
 			res.redirect('login');
 		}
 	});
-})
+});
+*/
 
 
 module.exports = router;

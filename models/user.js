@@ -9,16 +9,17 @@ const UserSchema = Schema({
     password: { type: String, required: true, max: 100 },
     date_of_birth: { type: Date },
     profile_id: { type: String, max: 100 },
-    profile_name: { type: String, required: false, max: 100 },
+    profile_name: { type: String, required: true, max: 100 },
   }
 );
 
 // Virtual for author's URL to obtain the particular instance
-UserSchema.virtual('url').get(() => `/profile/ ${this.profile_id}`);
+// TODO: Assert that profile_name has no spaces
+UserSchema.virtual('url').get(() => `/profile/ ${this.profile_name}`);
 
 // Called in user creation to generate a hash for the password.
 UserSchema.methods.generateHash = (password) => {
-  return bcrypt.hash(password, bcrypt.genSaltSync(8), null);
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
 // Called when verifying if the password is the same as the hashed password.

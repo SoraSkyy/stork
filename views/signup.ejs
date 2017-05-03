@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 
 <html>
+    <% if (message) { %>
+        <div class="alert-danger"><%= message %></div>
+    <% } %>
     <form action="/signup" method="post">
         <div>
             <label>Email:</label>
