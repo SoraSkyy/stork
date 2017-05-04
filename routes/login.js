@@ -4,11 +4,11 @@ const passport = require('passport');
 
 
 router.get('/', (req, res, next) => {
-	if (req.user) {
-		res.send('You are already logged in!');
-	} else {
-		res.render('login', { message: req.flash('loginMessage')});
-	}
+  if (req.user) {
+    res.send('You are already logged in!');
+  } else {
+    res.render('login', { message: req.flash('loginMessage')});
+  }
 });
 
 router.post('/', passport.authenticate('local-login', {

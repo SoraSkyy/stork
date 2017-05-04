@@ -21,45 +21,63 @@ class UserController {
   */
   static createUser(req, email, password, done) {
     /* 
-      Checks if the email or profile_name already exists.
-      As long as either one of them gives a match, then we reject the application and flash 
-      error message.
+      Start by validating email, profile_name and password formats.
+      Email is checked using the validator itself.
+      Passwords need to be between 6 and 24 characters long without spaces.
+      Profile names must be between 4 and 20 characters long, alphanumeric only.
     */
-    User.findOne({ $or: [ { 'email': email }, { 'profile_name': req.body.profile_name } ] }, (err, user) => {
-      if (err) {
-        console.log(err);
-        return done(err);
+
+    // TODO: Find way to check that no spaces inside password.
+    req.checkBody('email', 'Invalid email.').isEmail();
+    req.checkBody('profile_name', 'Profile name must be between 4 to 20 characters.').len(4,20);
+    req.checkBody('profile_name', 'Profile name can only contain letters and numbers.').isAlphanumeric();
+    req.checkBody('password', 'Password length must be between 6 to 24 characters.').len(6,24);
+
+    req.getValidationResult().then((result) => {
+      if (!result.isEmpty()) {
+        return done(null, false, req.flash('signupMessage', result.array()[0].msg));
       }
-      if (user) {
-        /* 
-          Means a match is found and that this application should not be accepted.
-          Attempt to find out what exactly which is the problem.
-        */
-        if (user.email.toString().localeCompare(email) == 0) {
-          // No repeat emails allowed in app.
-          return done(null, false, req.flash('signupMessage', 'That email is already in use.'));
-        } else if (user.profile_name.toString().localeCompare(req.body.profile_name) == 0) {
-          // The profile name should also be unique.
-          return done(null, false, req.flash('signupMessage', 'This profile name has already been taken.'));
+      /* 
+        Now check if the email or profile_name already exists.
+        As long as either one of them gives a match, then we reject the application and flash 
+        error message.
+      */
+      User.findOne({ $or: [{ 'email': email }, { 'profile_name': req.body.profile_name }] }, (err, user) => {
+        if (err) {
+          console.log(err);
+          return done(err);
         }
-      } else {
-        // All checks cleared. Time to create his profile and add it into the DB.
-        let newUser = new User();
-        newUser.profile_name = req.body.profile_name;
-        newUser.email = email;
-        newUser.generateHash(password, (hash) => {
-          newUser.password = hash;
-          newUser.save((err) => {
-            if (err) {
-              console.log('There was an error in creating the user');
-              console.log(err);
-              throw err;
-            } else {
-              done(null, newUser);
-            }
+        if (user) {
+          /* 
+            Means a match is found and that this application should not be accepted.
+            Attempt to find out what exactly which is the problem.
+          */
+          if (user.email.toString().localeCompare(email) == 0) {
+            // No repeat emails allowed in app.
+            return done(null, false, req.flash('signupMessage', 'That email is already in use.'));
+          } else if (user.profile_name.toString().localeCompare(req.body.profile_name) == 0) {
+            // The profile name should also be unique.
+            return done(null, false, req.flash('signupMessage', 'This profile name has already been taken.'));
+          }
+        } else {
+          // All checks cleared. Time to create his profile and add it into the DB.
+          let newUser = new User();
+          newUser.profile_name = req.body.profile_name;
+          newUser.email = email;
+          newUser.generateHash(password, (hash) => {
+            newUser.password = hash;
+            newUser.save((err) => {
+              if (err) {
+                console.log('There was an error in creating the user');
+                console.log(err);
+                throw err;
+              } else {
+                done(null, newUser);
+              }
+            });
           });
-        });
-      }
+        }
+      });
     });
   }
 
