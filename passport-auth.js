@@ -17,13 +17,13 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-// Register local-signup strategy
+// Register local-signup strategy.
 passport.use('local-signup', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
   passReqToCallback: true }, UserController.createUser));
 
-// TODO: Register local-login strategy. This is just a placeholder.
+// Register local-login strategy.
 passport.use('local-login', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
