@@ -23,19 +23,11 @@ passport.use('local-signup', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true }, UserController.createUser));
 
-// TODO: Register local login strategy. This is just a placeholder.
-passport.use('local-login', new LocalStrategy({ usernameField: 'email', passwordField: 'password' }, (username, password, done) => {
-  User.findOne({ username }, (err, user) => {
-    if (err) { return done(err); }
-    if (!user) {
-      return done(null, false, { message: 'Incorrect username.' });
-    }
-    if (!user.validPassword(password)) {
-      return done(null, false, { message: 'Incorrect password.' });
-    }
-    return done(null, user);
-  });
-}));
+// TODO: Register local-login strategy. This is just a placeholder.
+passport.use('local-login', new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password',
+  passReqToCallback: true }, UserController.loginUser));
 
 module.exports = passport;
 

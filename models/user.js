@@ -37,8 +37,15 @@ UserSchema.methods.generateHash = (password, callback) => {
 };
 
 // Called when verifying if the password is the same as the hashed password.
-UserSchema.methods.validPassword = (password) => {
-  return bcrypt.compare(password, this.password);
+UserSchema.methods.validatePassword = (password, hash, callback) => {
+  bcrypt.compare(password, hash, (err, result) => {
+    if (err) {
+      console.log('Error occured while comparing hashed passwords.');
+      console.log(err);
+      throw err;
+    }
+    callback(result);
+  });
 };
 
 // Export model

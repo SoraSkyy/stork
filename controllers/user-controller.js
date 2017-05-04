@@ -17,7 +17,7 @@ class UserController {
     @param {Object} req - The request object that passport receives from the POST request.
     @param {String} email - The email that is being input by the user.
     @param {String} password - The password that is being input by the user.
-    @done {requestCallback} done - The callback that returns the control flow back to passport.
+    @param {requestCallback} done - The callback that returns the control flow back to passport.
   */
   static createUser(req, email, password, done) {
     /* 
@@ -63,6 +63,29 @@ class UserController {
     });
   }
 
+  /*
+    This method is called primarily by passport-auth.js when a user sends a POST
+    request to log in to the site.
+
+    It checks if there is a user with the email, and then compares the hashed password
+    with the one that was entered.
+
+    @param {String} email - The email that is being input by the user.
+    @param {String} password - The password that is being input by the user.
+    @param {requestCallback} done - The callback that returns the control flow back to passport.
+  */
+  static loginUser(req, email, password, done) {
+    const failureMessage = 'Error: Either email or password is wrong.';
+    User.findOne({ 'email': email }, (err, user) => {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, req.flash('loginMessage', failureMessage));
+      }
+      user.validatePassword(password, user.password, (result) => {
+        result ? done(null, user) : done(null, false, req.flash('loginMessage', failureMessage));
+      });
+    });
+  }
 
 }
 
