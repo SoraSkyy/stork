@@ -27,11 +27,11 @@ class UserController {
       Profile names must be between 4 and 20 characters long, alphanumeric only.
     */
 
-    // TODO: Find way to check that no spaces inside password.
     req.checkBody('email', 'Invalid email.').isEmail();
     req.checkBody('profile_name', 'Profile name must be between 4 to 20 characters.').len(4,20);
     req.checkBody('profile_name', 'Profile name can only contain letters and numbers.').isAlphanumeric();
     req.checkBody('password', 'Password length must be between 6 to 24 characters.').len(6,24);
+    req.checkBody('password', 'Password cannot contain spaces.').noSpaces();
 
     req.getValidationResult().then((result) => {
       if (!result.isEmpty()) {
